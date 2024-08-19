@@ -1,0 +1,33 @@
+name: Auto Close Non-Collaborator PRs
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  close_pr:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check if author is a collaborator
+      id: check_collaborator
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { data: collaborators } = await github.repos.listCollaborators({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          const isCollaborator = collaborators.some(
+            collaborator => collaborator.login === context.payload.pull_request.user.login
+          );
+          return isCollaborator;
+          
+    - name: Close PR if not a collaborator
+      if: steps.check_collaborator.outputs.result == 'false'
+      run: |
+        curl -X PATCH \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} \
+          -d '{"state":"closed"}'
+        echo "PR closed because the author is not a collaborator."
