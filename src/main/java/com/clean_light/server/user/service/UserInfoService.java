@@ -1,20 +1,19 @@
 package com.clean_light.server.user.service;
 
-import com.clean_light.server.user.domain.User;
 import com.clean_light.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
-public class UserAuthService {
+public class UserInfoService {
     private final UserRepository userRepository;
 
-    public Long join(User user) {
-        User savedUser = userRepository.save(user);
+    public boolean isExistLoginId(String loginId) {
+        return userRepository.existsByLoginId(loginId);
+    }
 
-        return savedUser.getId();
+    public boolean isExistNickName(String nickName) {
+        return userRepository.existsByNickName(nickName);
     }
 }
