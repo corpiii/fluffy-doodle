@@ -1,4 +1,4 @@
-package com.clean_light.server.domain;
+package com.clean_light.server.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

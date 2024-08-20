@@ -1,18 +1,13 @@
-package com.clean_light.server.dto;
+package com.clean_light.server.user.dto;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-@AllArgsConstructor
-@Builder
 public class UserJoinDto {
     @NotBlank(message = "ID는 필수 입력 사항입니다.")
     @Pattern(regexp = "^[a-zA-Z0-9]{3,}$",
