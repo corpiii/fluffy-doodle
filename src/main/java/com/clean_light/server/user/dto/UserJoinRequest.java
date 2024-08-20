@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class UserJoinDto {
+public class UserJoinRequest {
     @NotBlank(message = "ID는 필수 입력 사항입니다.")
     @Pattern(regexp = "^[a-zA-Z0-9]{3,}$",
             message = "ID는 영어, 숫자로 이루어진 3자 이상이어야 합니다.")
