@@ -2,8 +2,13 @@ package com.clean_light.server.user.controller;
 
 import com.clean_light.server.user.domain.User;
 import com.clean_light.server.user.dto.UserJoinRequest;
+import com.clean_light.server.user.dto.UserLoginRequest;
+import com.clean_light.server.user.error.UserAuthError;
+import com.clean_light.server.user.error.UserAuthException;
 import com.clean_light.server.user.service.UserAuthService;
 import com.clean_light.server.user.service.UserInfoService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -44,6 +49,30 @@ public class UserController {
 
         userAuthService.join(user);
 
-        return new ResponseEntity<>(userJoinRequest, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody UserLoginRequest userLoginRequest, HttpServletResponse response) {
+        User user = User.builder()
+                .loginId(userLoginRequest.loginId)
+                .password(userLoginRequest.password)
+                .build();
+
+        try {
+            String sessionId = userAuthService.login(user);
+            Cookie cookie = new Cookie("SESSIONID", sessionId);
+
+            cookie.setHttpOnly(true);
+            cookie.setMaxAge(30 * 60);
+            cookie.setPath("/");
+
+            response.addCookie(cookie);
+
+            return ResponseEntity.ok("로그인 되었습니다.");
+
+        } catch (UserAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 }

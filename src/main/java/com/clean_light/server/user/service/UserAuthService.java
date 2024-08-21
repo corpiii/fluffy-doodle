@@ -1,6 +1,7 @@
 package com.clean_light.server.user.service;
 
 import com.clean_light.server.user.domain.User;
+import com.clean_light.server.user.error.UserAuthException;
 import com.clean_light.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,5 +17,9 @@ public class UserAuthService {
         User savedUser = userRepository.save(user);
 
         return savedUser.getId();
+    }
+
+    public String login(User user) throws UserAuthException {
+        return "";
     }
 }
