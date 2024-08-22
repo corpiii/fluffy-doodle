@@ -49,9 +49,19 @@ public class UserAuthService {
         User user = (User) redisTemplate.opsForValue().get(sessionId);
 
         if (user == null) {
-            throw new UserAuthException(UserAuthError.SESSION_EXPIRED);
+            throw new UserAuthException(UserAuthError.USER_NOT_CONNECTED);
         }
 
         userRepository.deleteById(user.getId());
+    }
+
+    public void logout(String sessionId) {
+        User user = (User) redisTemplate.opsForValue().get(sessionId);
+
+        if (user == null) {
+            throw new UserAuthException(UserAuthError.USER_NOT_CONNECTED);
+        }
+
+        redisTemplate.delete(sessionId);
     }
 }

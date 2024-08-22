@@ -86,4 +86,16 @@ public class UserController {
 
         return ResponseEntity.ok("탈퇴되었습니다.");
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity logout(@CookieValue("SESSIONID") String sessionId) {
+        try {
+            userAuthService.logout(sessionId);
+        } catch (UserAuthException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+
+        return ResponseEntity.ok("로그아웃 되었습니다.");
+    }
 }
