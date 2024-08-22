@@ -1,6 +1,7 @@
 package com.clean_light.server.user.controller;
 
 import com.clean_light.server.user.domain.User;
+import com.clean_light.server.user.dto.UserDeleteRequest;
 import com.clean_light.server.user.dto.UserJoinRequest;
 import com.clean_light.server.user.dto.UserLoginRequest;
 import com.clean_light.server.user.error.UserAuthError;
@@ -73,5 +74,16 @@ public class UserController {
         } catch (UserAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
+    }
+
+    @DeleteMapping("/")
+    public ResponseEntity delete(@CookieValue("SESSIONID") String sessionId) {
+        try {
+            userAuthService.deleteUserBySessionId(sessionId);
+        } catch (UserAuthException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+        return ResponseEntity.ok("탈퇴되었습니다.");
     }
 }

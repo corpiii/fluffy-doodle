@@ -41,13 +41,17 @@ public class UserAuthService {
         return sessionId;
     }
 
-    public User userBySessionId(String sessionId) {
-        User user1 = (User) redisTemplate.opsForValue().get(sessionId);
-
-        System.out.println(redisTemplate.getKeySerializer());
-        System.out.println(redisTemplate.hasKey(sessionId));
-        System.out.println("user1 = " + user1);
-
+    public User fetchUserBySessionId(String sessionId) {
         return (User) redisTemplate.opsForValue().get(sessionId);
+    }
+
+    public void deleteUserBySessionId(String sessionId) throws UserAuthException {
+        User user = (User) redisTemplate.opsForValue().get(sessionId);
+
+        if (user == null) {
+            throw new UserAuthException(UserAuthError.SESSION_EXPIRED);
+        }
+
+        userRepository.deleteById(user.getId());
     }
 }
