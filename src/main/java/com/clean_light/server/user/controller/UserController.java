@@ -8,16 +8,14 @@ import com.clean_light.server.user.error.UserAuthException;
 import com.clean_light.server.user.service.UserAuthService;
 import com.clean_light.server.user.service.UserInfoService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -60,11 +58,12 @@ public class UserController {
                 .build();
 
         try {
-            String sessionId = userAuthService.login(user);
+            int expired = 30 * 60;
+            String sessionId = userAuthService.login(user, expired);
             Cookie cookie = new Cookie("SESSIONID", sessionId);
 
             cookie.setHttpOnly(true);
-            cookie.setMaxAge(30 * 60);
+            cookie.setMaxAge(expired);
             cookie.setPath("/");
 
             response.addCookie(cookie);
