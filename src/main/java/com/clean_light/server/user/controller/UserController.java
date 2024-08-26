@@ -27,7 +27,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/join")
-    public ResponseEntity<?> join(@Valid @RequestBody UserJoinRequest userJoinRequest) {
+    public ResponseEntity<?> join(@RequestBody UserJoinRequest userJoinRequest) {
         String loginId = userJoinRequest.getLoginId();
         String encodedPassword = passwordEncoder.encode(userJoinRequest.getPassword());
 
@@ -66,6 +66,8 @@ public class UserController {
             cookie.setHttpOnly(true);
             cookie.setMaxAge(expired);
             cookie.setPath("/");
+            cookie.setSecure(true);
+            cookie.setAttribute("SameSite", "None");
 
             response.addCookie(cookie);
 
@@ -76,7 +78,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping()
     public ResponseEntity delete(@CookieValue("SESSIONID") String sessionId) {
         try {
             userAuthService.deleteUserBySessionId(sessionId);
@@ -97,5 +99,12 @@ public class UserController {
 
 
         return ResponseEntity.ok("로그아웃 되었습니다.");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity user(@CookieValue("SESSIONID") String sessionId) {
+        User user = userAuthService.fetchUserBySessionId(sessionId);
+
+        return ResponseEntity.ok(user);
     }
 }
