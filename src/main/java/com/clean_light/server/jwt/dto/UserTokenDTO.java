@@ -1,8 +1,15 @@
 package com.clean_light.server.jwt.dto;
 
-import lombok.Data;
+import com.clean_light.server.user.domain.User;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserTokenDTO {
-    private final String loginId;
+    private String loginId;
+
+    public static UserTokenDTO from(User user) {
+        return new UserTokenDTO(user.getLoginId());
+    }
 }

@@ -24,7 +24,7 @@ public class JwtService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${secret_key}")
-    private final String SECRET_KEY;
+    private String SECRET_KEY;
 
     public String generateAccessToken(UserTokenDTO userTokenDTO) throws JsonProcessingException {
         SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
