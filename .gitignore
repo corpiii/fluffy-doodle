@@ -37,3 +37,5 @@ out/
 .vscode/
 compose.yaml
 src/main/resources/application.properties
+src/main/resources/jwt.properties
+keystore.p12
