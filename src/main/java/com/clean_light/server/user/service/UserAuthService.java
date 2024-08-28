@@ -1,6 +1,8 @@
 package com.clean_light.server.user.service;
 
+import com.clean_light.server.jwt.dto.UserTokenDTO;
 import com.clean_light.server.user.domain.User;
+import com.clean_light.server.user.dto.AuthInfo;
 import com.clean_light.server.user.error.UserAuthError;
 import com.clean_light.server.user.error.UserAuthException;
 import com.clean_light.server.user.repository.UserRepository;
@@ -9,9 +11,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -27,7 +26,7 @@ public class UserAuthService {
         return savedUser.getId();
     }
 
-    public String login(User user, int expired) throws UserAuthException {
+    public UserTokenDTO login(User user) throws UserAuthException {
         User foundedUser = userRepository.findByLoginId(user.getLoginId())
                 .orElseThrow(() -> new UserAuthException(UserAuthError.INVALID_LOGIN_ID));
 
@@ -35,10 +34,7 @@ public class UserAuthService {
             throw new UserAuthException(UserAuthError.INVALID_PASSWORD);
         }
 
-        String sessionId = UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set(sessionId, foundedUser, expired, TimeUnit.SECONDS);
-
-        return sessionId;
+        return UserTokenDTO.from(user);
     }
 
     public User fetchUserBySessionId(String sessionId) {

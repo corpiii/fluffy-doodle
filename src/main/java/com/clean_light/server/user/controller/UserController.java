@@ -1,18 +1,20 @@
 package com.clean_light.server.user.controller;
 
+import com.clean_light.server.jwt.dto.UserTokenDTO;
+import com.clean_light.server.jwt.service.JwtService;
 import com.clean_light.server.user.domain.User;
-import com.clean_light.server.user.dto.UserDeleteRequest;
+import com.clean_light.server.user.dto.AuthInfo;
 import com.clean_light.server.user.dto.UserJoinRequest;
 import com.clean_light.server.user.dto.UserLoginRequest;
 import com.clean_light.server.user.error.UserAuthError;
 import com.clean_light.server.user.error.UserAuthException;
 import com.clean_light.server.user.service.UserAuthService;
 import com.clean_light.server.user.service.UserInfoService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,10 +26,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserAuthService userAuthService;
     private final UserInfoService userInfoService;
+    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/join")
-    public ResponseEntity<?> join(@RequestBody UserJoinRequest userJoinRequest) {
+    public ResponseEntity<?> join(@Valid @RequestBody UserJoinRequest userJoinRequest) {
         String loginId = userJoinRequest.getLoginId();
         String encodedPassword = passwordEncoder.encode(userJoinRequest.getPassword());
 
@@ -52,36 +55,31 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest userLoginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody UserLoginRequest userLoginRequest) throws JsonProcessingException {
         User user = User.builder()
                 .loginId(userLoginRequest.loginId)
                 .password(userLoginRequest.password)
                 .build();
 
         try {
-            int expired = 30 * 60;
-            String sessionId = userAuthService.login(user, expired);
-            Cookie cookie = new Cookie("SESSIONID", sessionId);
+            UserTokenDTO userTokenDTO = userAuthService.login(user);
+            String accessToken = jwtService.generateAccessToken(userTokenDTO);
+            String refreshToken = jwtService.generateRefreshToken();
 
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(expired);
-            cookie.setPath("/");
-            cookie.setSecure(true);
-            cookie.setAttribute("SameSite", "None");
-
-            response.addCookie(cookie);
-
-            return ResponseEntity.ok("로그인 되었습니다.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                    .header("Refresh-Token", "Bearer " + refreshToken)
+                    .body("로그인 되었습니다.");
 
         } catch (UserAuthException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @DeleteMapping()
-    public ResponseEntity delete(@CookieValue("SESSIONID") String sessionId) {
+    public ResponseEntity delete(@RequestHeader("AUTHORIZATION") String accessToken) {
         try {
-            userAuthService.deleteUserBySessionId(sessionId);
+            userAuthService.deleteUserBySessionId(accessToken);
         } catch (UserAuthException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -90,9 +88,9 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity logout(@CookieValue("SESSIONID") String sessionId) {
+    public ResponseEntity logout(@RequestHeader("AUTHORIZATION") String accessToken) {
         try {
-            userAuthService.logout(sessionId);
+            userAuthService.logout(accessToken);
         } catch (UserAuthException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -102,8 +100,8 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity user(@CookieValue("SESSIONID") String sessionId) {
-        User user = userAuthService.fetchUserBySessionId(sessionId);
+    public ResponseEntity user(@RequestHeader("AUTHORIZATION") String accessToken) {
+        User user = userAuthService.fetchUserBySessionId(accessToken);
 
         return ResponseEntity.ok(user);
     }

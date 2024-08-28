@@ -8,8 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 public class UserTokenDTO {
     private String loginId;
+    private String nickName;
 
     public static UserTokenDTO from(User user) {
-        return new UserTokenDTO(user.getLoginId());
+        return new UserTokenDTO(user.getLoginId(), user.getNickName());
     }
 }
