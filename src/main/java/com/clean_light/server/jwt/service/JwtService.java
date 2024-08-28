@@ -20,7 +20,7 @@ import java.util.Date;
 @PropertySource("classpath:jwt.properties")
 public class JwtService {
     private static final long ACCESS_EXPIRATION_TIME = Duration.ofMinutes(30).toMillis();
-    private static final long REFRESH_EXPIRATION_TIME = Duration.ofDays(1).toMillis();
+    private static final long REFRESH_EXPIRATION_TIME = Duration.ofDays(7).toMillis();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${secret_key}")
@@ -43,16 +43,14 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateRefreshToken(UserTokenDTO userTokenDTO) throws JsonProcessingException {
+    public String generateRefreshToken() throws JsonProcessingException {
         SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-        String json = objectMapper.writeValueAsString(userTokenDTO);
 
         return Jwts.builder()
                 .header()
                     .add("type", "jwt")
                     .and()
                 .claims()
-                    .add("user", json)
                     .issuedAt(new Date())
                     .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
                     .and()
