@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,8 +73,8 @@ class UserAuthServiceTest {
         userAuthService.login(willLoginUser);
 
         /* then */
-        String s = redisTemplate.opsForValue().get(loginId);
-        System.out.println(s);
+        String refreshToken = redisTemplate.opsForValue().get(loginId);
+        assertNotNull(refreshToken);
     }
 
     @Test
@@ -83,16 +82,19 @@ class UserAuthServiceTest {
     @Transactional
     public void userLogout() throws Exception {
         /* given */
+        String loginId = "loginId";
+        String originPassword = "password";
+        String encodedPassword = passwordEncoder.encode(originPassword);
         User willJoinUser = User.builder()
-                .loginId("loginId")
-                .password("password")
+                .loginId(loginId)
+                .password(encodedPassword)
                 .email("email")
                 .nickName("nickName")
                 .build();
 
         User willLoginUser = User.builder()
-                .loginId("loginId")
-                .password("password")
+                .loginId(loginId)
+                .password(originPassword)
                 .build();
 
         userAuthService.join(willJoinUser);
@@ -100,15 +102,10 @@ class UserAuthServiceTest {
         String accessToken = userAuthToken.getAccessToken();
 
         /* when */
-        userAuthService.logout(userAuthToken.getAccessToken());
+        userAuthService.logout(accessToken);
 
         /* then */
-        User user = userRepository.findByLoginId(willJoinUser.getLoginId()).get();
-
-        assertNotNull(user);
-        assertEquals(user.getLoginId(), willJoinUser.getLoginId());
-        assertEquals(user.getPassword(), willJoinUser.getPassword());
-        assertEquals(user.getEmail(), willJoinUser.getEmail());
-        assertEquals(user.getNickName(), willJoinUser.getNickName());
+        String refreshToken = redisTemplate.opsForValue().get(loginId);
+        assertNull(refreshToken);
     }
 }
