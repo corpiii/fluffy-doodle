@@ -20,9 +20,6 @@ import java.time.Duration;
 @Transactional
 @RequiredArgsConstructor
 public class UserAuthService {
-    private static final Duration ACCESS_EXPIRATION_TIME = Duration.ofMinutes(30);
-    private static final Duration REFRESH_EXPIRATION_TIME = Duration.ofDays(7);
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -43,17 +40,17 @@ public class UserAuthService {
         }
 
         UserTokenInfo userTokenInfo = UserTokenInfo.from(user);
-        String accessToken = jwtService.generateAccessToken(userTokenInfo, ACCESS_EXPIRATION_TIME);
-        String refreshToken = jwtService.generateRefreshToken(REFRESH_EXPIRATION_TIME);
+        String accessToken = jwtService.generateAccessToken(userTokenInfo);
+        String refreshToken = jwtService.generateRefreshToken();
         UserAuthToken userAuthToken = UserAuthToken.of(accessToken, refreshToken);
 
-        redisTemplate.opsForValue().set(user.getLoginId(), refreshToken, REFRESH_EXPIRATION_TIME);
+        redisTemplate.opsForValue().set(user.getLoginId(), refreshToken, JwtService.REFRESH_EXPIRATION_TIME);
 
         return userAuthToken;
     }
 
     public void logout(String accessToken) throws JsonProcessingException {
-        // TODO
-        // UserTokenInfo userTokenInfo = jwtService.decodeToken(accessToken);
+        UserTokenInfo userTokenInfo = jwtService.decodeToken(accessToken);
+        redisTemplate.opsForValue().getAndDelete(userTokenInfo.getLoginId());
     }
 }

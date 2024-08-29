@@ -28,21 +28,21 @@ public class UserController {
     @PostMapping("/join")
     public ResponseEntity<?> join(@Valid @RequestBody UserJoinRequest userJoinRequest) {
         String loginId = userJoinRequest.getLoginId();
+        String nickName = userJoinRequest.getNickName();
         String encodedPassword = passwordEncoder.encode(userJoinRequest.getPassword());
 
-        if (userInfoService.isExistLoginId(loginId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("중복된 아이디 입니다.");
-        }
-
-        if (userInfoService.isExistNickName(userJoinRequest.getNickName())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("중복된 닉네임 입니다.");
+        try {
+            userInfoService.isExistLoginId(loginId);
+            userInfoService.isExistNickName(nickName);
+        } catch (UserAuthException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
 
         User user = User.builder()
                 .loginId(loginId)
                 .password(encodedPassword)
                 .email(userJoinRequest.getEmail())
-                .nickName(userJoinRequest.getNickName())
+                .nickName(nickName)
                 .build();
 
         userAuthService.join(user);
@@ -64,7 +64,6 @@ public class UserController {
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + userAuthToken.getAccessToken())
                     .header("Refresh-Token", "Bearer " + userAuthToken.getRefreshToken())
                     .body("로그인 되었습니다.");
-
         } catch (UserAuthException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -72,12 +71,12 @@ public class UserController {
 
     @DeleteMapping()
     public ResponseEntity delete(@RequestHeader("AUTHORIZATION") String accessToken) {
-        try {
-            userAuthService.deleteUserBySessionId(accessToken);
-        } catch (UserAuthException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-
+//        try {
+//            userAuthService.deleteUserBySessionId(accessToken);
+//        } catch (UserAuthException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//
         return ResponseEntity.ok("탈퇴되었습니다.");
     }
 
@@ -85,18 +84,10 @@ public class UserController {
     public ResponseEntity logout(@RequestHeader("AUTHORIZATION") String accessToken) {
         try {
             userAuthService.logout(accessToken);
-        } catch (UserAuthException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
-
         return ResponseEntity.ok("로그아웃 되었습니다.");
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity user(@RequestHeader("AUTHORIZATION") String accessToken) {
-        User user = userAuthService.fetchUserBySessionId(accessToken);
-
-        return ResponseEntity.ok(user);
     }
 }
