@@ -22,30 +22,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController {
     private final UserAuthService userAuthService;
-    private final UserInfoService userInfoService;
+
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@Valid @RequestBody UserJoinRequest userJoinRequest) {
-        String loginId = userJoinRequest.getLoginId();
-        String nickName = userJoinRequest.getNickName();
         String encodedPassword = passwordEncoder.encode(userJoinRequest.getPassword());
 
+        User user = User.builder()
+                .loginId(userJoinRequest.getLoginId())
+                .password(encodedPassword)
+                .email(userJoinRequest.getEmail())
+                .nickName(userJoinRequest.getNickName())
+                .build();
+
         try {
-            userInfoService.isExistLoginId(loginId);
-            userInfoService.isExistNickName(nickName);
+            userAuthService.join(user);
         } catch (UserAuthException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        User user = User.builder()
-                .loginId(loginId)
-                .password(encodedPassword)
-                .email(userJoinRequest.getEmail())
-                .nickName(nickName)
-                .build();
-
-        userAuthService.join(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
     }
@@ -71,19 +66,21 @@ public class UserController {
 
     @DeleteMapping()
     public ResponseEntity delete(@RequestHeader("AUTHORIZATION") String accessToken) {
-//        try {
-//            userAuthService.deleteUserBySessionId(accessToken);
-//        } catch (UserAuthException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//
+        try {
+            userAuthService.delete(accessToken);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
         return ResponseEntity.ok("탈퇴되었습니다.");
     }
 
     @PostMapping("/logout")
     public ResponseEntity logout(@RequestHeader("AUTHORIZATION") String accessToken) {
+        String newAccessToken = accessToken.substring(7);
+
         try {
-            userAuthService.logout(accessToken);
+            userAuthService.logout(newAccessToken);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

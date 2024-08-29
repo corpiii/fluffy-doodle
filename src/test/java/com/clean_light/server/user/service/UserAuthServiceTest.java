@@ -60,7 +60,7 @@ class UserAuthServiceTest {
                 .nickName("nickName")
                 .build();
 
-        userAuthService.join(willJoinUser);
+        Long userId = userAuthService.join(willJoinUser);
 
         /* when */
         User willLoginUser = User.builder()
@@ -70,11 +70,12 @@ class UserAuthServiceTest {
 
         UserAuthToken userAuthToken = userAuthService.login(willLoginUser);
         String accessToken = userAuthToken.getAccessToken();
-        userAuthService.login(willLoginUser);
 
         /* then */
-        String refreshToken = redisTemplate.opsForValue().get(loginId);
+        String refreshToken = redisTemplate.opsForValue().get(userId.toString());
         assertNotNull(refreshToken);
+
+        redisTemplate.delete(loginId);
     }
 
     @Test

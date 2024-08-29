@@ -7,10 +7,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserTokenInfo {
+    private Long id;
     private String loginId;
     private String nickName;
 
     public static UserTokenInfo from(User user) {
-        return new UserTokenInfo(user.getLoginId(), user.getNickName());
+        return new UserTokenInfo(user.getId(), user.getLoginId(), user.getNickName());
     }
 }
