@@ -1,6 +1,6 @@
 package com.clean_light.server.jwt.service;
 
-import com.clean_light.server.jwt.dto.UserTokenDTO;
+import com.clean_light.server.jwt.dto.UserTokenInfo;
 import com.clean_light.server.user.domain.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +23,11 @@ class JwtServiceTest {
         User user = User.builder()
                 .loginId("loginId")
                 .build();
-        UserTokenDTO userTokenDTO = UserTokenDTO.from(user);
+        UserTokenInfo userTokenDTO = UserTokenInfo.from(user);
 
         /* when */
         String accessToken = jwtService.generateAccessToken(userTokenDTO);
-        UserTokenDTO decodedToken = jwtService.decodeToken(accessToken);
+        UserTokenInfo decodedToken = jwtService.decodeToken(accessToken);
 
         /* then */
         assertEquals(userTokenDTO.getLoginId(), decodedToken.getLoginId());

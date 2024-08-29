@@ -6,11 +6,11 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserTokenDTO {
+public class UserTokenInfo {
     private String loginId;
     private String nickName;
 
-    public static UserTokenDTO from(User user) {
-        return new UserTokenDTO(user.getLoginId(), user.getNickName());
+    public static UserTokenInfo from(User user) {
+        return new UserTokenInfo(user.getLoginId(), user.getNickName());
     }
 }

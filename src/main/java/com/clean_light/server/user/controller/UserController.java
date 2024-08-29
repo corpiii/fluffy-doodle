@@ -1,17 +1,14 @@
 package com.clean_light.server.user.controller;
 
-import com.clean_light.server.jwt.dto.UserTokenDTO;
 import com.clean_light.server.jwt.service.JwtService;
 import com.clean_light.server.user.domain.User;
-import com.clean_light.server.user.dto.AuthInfo;
+import com.clean_light.server.user.dto.UserAuthToken;
 import com.clean_light.server.user.dto.UserJoinRequest;
 import com.clean_light.server.user.dto.UserLoginRequest;
-import com.clean_light.server.user.error.UserAuthError;
 import com.clean_light.server.user.error.UserAuthException;
 import com.clean_light.server.user.service.UserAuthService;
 import com.clean_light.server.user.service.UserInfoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserAuthService userAuthService;
     private final UserInfoService userInfoService;
-    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/join")
@@ -62,13 +58,11 @@ public class UserController {
                 .build();
 
         try {
-            UserTokenDTO userTokenDTO = userAuthService.login(user);
-            String accessToken = jwtService.generateAccessToken(userTokenDTO);
-            String refreshToken = jwtService.generateRefreshToken();
+            UserAuthToken userAuthToken = userAuthService.login(user);
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                    .header("Refresh-Token", "Bearer " + refreshToken)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + userAuthToken.getAccessToken())
+                    .header("Refresh-Token", "Bearer " + userAuthToken.getRefreshToken())
                     .body("로그인 되었습니다.");
 
         } catch (UserAuthException e) {
