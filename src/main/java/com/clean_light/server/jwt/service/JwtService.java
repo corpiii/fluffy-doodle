@@ -1,19 +1,25 @@
 package com.clean_light.server.jwt.service;
 
 import com.clean_light.server.jwt.dto.UserTokenInfo;
+import com.clean_light.server.user.dto.UserAuthToken;
+import com.clean_light.server.user.error.UserAuthError;
+import com.clean_light.server.user.error.UserAuthException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +28,7 @@ public class JwtService {
     public static final Duration ACCESS_EXPIRATION_TIME = Duration.ofMinutes(30);
     public static final Duration REFRESH_EXPIRATION_TIME = Duration.ofDays(7);
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${secret_key}")
     private String SECRET_KEY;
@@ -77,5 +84,25 @@ public class JwtService {
         } catch (JwtException e) {
             throw new RuntimeException("토큰이 유효하지 않습니다.");
         }
+    }
+
+    public UserAuthToken refresh(String accessToken, String refreshToken) throws JsonProcessingException {
+        UserTokenInfo userTokenInfo = decodeToken(accessToken);
+
+        Long userId = userTokenInfo.getId();
+        String storedRefreshToken = redisTemplate.opsForValue().get(userId.toString());
+
+        if (storedRefreshToken == null || !Objects.equals(refreshToken, storedRefreshToken)) {
+            throw new JwtException("유효하지 않은 토큰입니다.");
+        }
+
+        String newAccessToken = generateAccessToken(userTokenInfo);
+        String newRefreshToken = generateRefreshToken();
+
+        redisTemplate.opsForValue().set(userId.toString(), newRefreshToken, REFRESH_EXPIRATION_TIME);
+
+        // accessToken 블랙리스트 추가
+
+        return UserAuthToken.of(newAccessToken, newRefreshToken);
     }
 }

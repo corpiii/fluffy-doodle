@@ -1,13 +1,11 @@
 package com.clean_light.server.user.controller;
 
-import com.clean_light.server.jwt.service.JwtService;
 import com.clean_light.server.user.domain.User;
 import com.clean_light.server.user.dto.UserAuthToken;
 import com.clean_light.server.user.dto.UserJoinRequest;
 import com.clean_light.server.user.dto.UserLoginRequest;
 import com.clean_light.server.user.error.UserAuthException;
 import com.clean_light.server.user.service.UserAuthService;
-import com.clean_light.server.user.service.UserInfoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +63,7 @@ public class UserController {
     }
 
     @DeleteMapping()
-    public ResponseEntity delete(@RequestHeader("AUTHORIZATION") String accessToken) {
+    public ResponseEntity delete(@RequestHeader("Authorization") String accessToken) {
         try {
             userAuthService.delete(accessToken);
         } catch (Exception e) {
@@ -76,7 +74,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity logout(@RequestHeader("AUTHORIZATION") String accessToken) {
+    public ResponseEntity logout(@RequestHeader("Authorization") String accessToken) {
         String newAccessToken = accessToken.substring(7);
 
         try {
