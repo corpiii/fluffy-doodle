@@ -7,6 +7,7 @@ public enum UserAuthError {
     INVALID_PASSWORD("비밀번호가 잘못되었습니다."),
     SESSION_EXPIRED("세션이 만료되었습니다."),
     USER_NOT_CONNECTED("접속중인 유저가 아닙니다."),
+    USER_ALREADY_LOGGED_IN("이미 로그인 중인 유저입니다."),
     USER_NOT_EXIST("존재하지 않는 유저입니다.");
 
     private final String message;

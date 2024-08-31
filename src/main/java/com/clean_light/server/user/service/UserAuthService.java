@@ -34,6 +34,10 @@ public class UserAuthService {
 
     @Transactional(readOnly = true)
     public UserAuthToken login(User user) throws UserAuthException, JsonProcessingException {
+        if (redisTemplate.opsForValue().get(user.getId().toString()) != null) {
+            throw new UserAuthException(UserAuthError.USER_ALREADY_LOGGED_IN);
+        }
+
         User foundedUser = userRepository.findByLoginId(user.getLoginId())
                 .orElseThrow(() -> new UserAuthException(UserAuthError.INVALID_LOGIN_ID));
 
