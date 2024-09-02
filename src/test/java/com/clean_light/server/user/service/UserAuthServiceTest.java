@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +18,7 @@ class UserAuthServiceTest {
     @Autowired UserAuthService userAuthService;
     @Autowired UserRepository userRepository;
     @Autowired PasswordEncoder passwordEncoder;
-    @Autowired RedisTemplate<String, String> redisTemplate;
+    @Autowired StringRedisTemplate jwtRedisTemplate;
 
     @Test
     @DisplayName("유저 생성 성공 테스트(값의 검증은 컨트롤러에서 시도)")
@@ -47,7 +47,6 @@ class UserAuthServiceTest {
 
     @Test
     @DisplayName("유저 로그인 테스트")
-    @Transactional
     public void userLogin() throws Exception {
         /* given */
         String loginId = "loginId";
@@ -60,7 +59,7 @@ class UserAuthServiceTest {
                 .nickName("nickName")
                 .build();
 
-        Long userId = userAuthService.join(willJoinUser);
+        userAuthService.join(willJoinUser);
 
         /* when */
         User willLoginUser = User.builder()
@@ -72,10 +71,10 @@ class UserAuthServiceTest {
         String accessToken = userAuthToken.getAccessToken();
 
         /* then */
-        String refreshToken = redisTemplate.opsForValue().get(userId.toString());
+        String refreshToken = jwtRedisTemplate.opsForValue().get(loginId);
         assertNotNull(refreshToken);
 
-        redisTemplate.delete(loginId);
+//        redisTemplate.delete(loginId);
     }
 
     @Test
@@ -106,7 +105,7 @@ class UserAuthServiceTest {
         userAuthService.logout(accessToken);
 
         /* then */
-        String refreshToken = redisTemplate.opsForValue().get(loginId);
+        String refreshToken = jwtRedisTemplate.opsForValue().get(loginId);
         assertNull(refreshToken);
     }
 }

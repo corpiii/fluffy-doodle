@@ -10,9 +10,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -26,9 +28,10 @@ import java.util.Objects;
 @PropertySource("classpath:jwt.properties")
 public class JwtService {
     public static final Duration ACCESS_EXPIRATION_TIME = Duration.ofMinutes(30);
-    public static final Duration REFRESH_EXPIRATION_TIME = Duration.ofDays(7);
+    public static final Duration REFRESH_EXPIRATION_TIME = Duration.ofHours(1);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final RedisTemplate<String, String> redisTemplate;
+    private final StringRedisTemplate jwtRedisTemplate;
+    private final StringRedisTemplate blackListRedisTemplate;
 
     @Value("${secret_key}")
     private String SECRET_KEY;
@@ -90,7 +93,7 @@ public class JwtService {
         UserTokenInfo userTokenInfo = decodeToken(accessToken);
 
         Long userId = userTokenInfo.getId();
-        String storedRefreshToken = redisTemplate.opsForValue().get(userId.toString());
+        String storedRefreshToken = jwtRedisTemplate.opsForValue().get(userId.toString());
 
         if (storedRefreshToken == null || !Objects.equals(refreshToken, storedRefreshToken)) {
             throw new JwtException("유효하지 않은 토큰입니다.");
@@ -99,10 +102,39 @@ public class JwtService {
         String newAccessToken = generateAccessToken(userTokenInfo);
         String newRefreshToken = generateRefreshToken();
 
-        redisTemplate.opsForValue().set(userId.toString(), newRefreshToken, REFRESH_EXPIRATION_TIME);
+        jwtRedisTemplate.opsForValue().set(userId.toString(), newRefreshToken, REFRESH_EXPIRATION_TIME);
 
         // accessToken 블랙리스트 추가
 
         return UserAuthToken.of(newAccessToken, newRefreshToken);
+    }
+
+    public void setBlackListIfExist(String loginId) throws JsonProcessingException {
+        String existedRefreshToken = jwtRedisTemplate.opsForValue().get(loginId);
+        String existedAccessToken = jwtRedisTemplate.opsForValue().get(loginId + "AT");
+
+        if (existedRefreshToken != null) {
+            Duration refreshTokenExpiration = getExpirationFrom(existedRefreshToken);
+
+            blackListRedisTemplate.opsForValue().set(loginId + "RT", existedRefreshToken, refreshTokenExpiration);
+        }
+
+        if (existedAccessToken != null) {
+            Duration accessTokenExpiration = getExpirationFrom(existedAccessToken);
+
+            blackListRedisTemplate.opsForValue().set(loginId + "AT", existedAccessToken, accessTokenExpiration);
+        }
+
+    }
+
+    private Duration getExpirationFrom(String token) {
+        SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        Claims payload = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return payload.getExpiration();
     }
 }
