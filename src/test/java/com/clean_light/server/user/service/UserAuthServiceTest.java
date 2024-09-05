@@ -1,5 +1,9 @@
 package com.clean_light.server.user.service;
 
+import com.clean_light.server.jwt.domain.TokenType;
+import com.clean_light.server.jwt.repository.TokenRepository;
+import com.clean_light.server.mock.MockBlackListRedisRepository;
+import com.clean_light.server.mock.MockRedisRepository;
 import com.clean_light.server.user.domain.User;
 import com.clean_light.server.user.dto.UserAuthToken;
 import com.clean_light.server.user.repository.UserRepository;
@@ -7,18 +11,22 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class UserAuthServiceTest {
     @Autowired UserAuthService userAuthService;
     @Autowired UserRepository userRepository;
     @Autowired PasswordEncoder passwordEncoder;
-    @Autowired StringRedisTemplate jwtRedisTemplate;
+    @Autowired TokenRepository redisRepository;
+    @Autowired TokenRepository blackListRedisRepository;
 
     @Test
     @DisplayName("유저 생성 성공 테스트(값의 검증은 컨트롤러에서 시도)")
@@ -47,6 +55,7 @@ class UserAuthServiceTest {
 
     @Test
     @DisplayName("유저 로그인 테스트")
+    @Transactional
     public void userLogin() throws Exception {
         /* given */
         String loginId = "loginId";
@@ -68,13 +77,13 @@ class UserAuthServiceTest {
                 .build();
 
         UserAuthToken userAuthToken = userAuthService.login(willLoginUser);
-        String accessToken = userAuthToken.getAccessToken();
 
         /* then */
-        String refreshToken = jwtRedisTemplate.opsForValue().get(loginId);
-        assertNotNull(refreshToken);
+        String accessToken = redisRepository.fetchTokenBy(loginId, TokenType.ACCESS);
+        String refreshToken = redisRepository.fetchTokenBy(loginId, TokenType.REFRESH);
 
-//        redisTemplate.delete(loginId);
+        assertEquals(userAuthToken.getAccessToken(), accessToken);
+        assertEquals(userAuthToken.getRefreshToken(), refreshToken);
     }
 
     @Test
@@ -99,13 +108,24 @@ class UserAuthServiceTest {
 
         userAuthService.join(willJoinUser);
         UserAuthToken userAuthToken = userAuthService.login(willLoginUser);
+
         String accessToken = userAuthToken.getAccessToken();
+        String refreshToken = userAuthToken.getRefreshToken();
 
         /* when */
         userAuthService.logout(accessToken);
 
         /* then */
-        String refreshToken = jwtRedisTemplate.opsForValue().get(loginId);
-        assertNull(refreshToken);
+        String originAccessToken = redisRepository.fetchTokenBy(loginId, TokenType.ACCESS);
+        String originRefreshToken = redisRepository.fetchTokenBy(loginId, TokenType.REFRESH);
+
+        assertNull(originAccessToken);
+        assertNull(originRefreshToken);
+
+        String blackListAccessToken = blackListRedisRepository.fetchTokenBy(loginId, TokenType.ACCESS);
+        String blackListRefreshToken = blackListRedisRepository.fetchTokenBy(loginId, TokenType.REFRESH);
+
+        assertEquals(blackListAccessToken, accessToken);
+        assertEquals(blackListRefreshToken, refreshToken);
     }
 }

@@ -1,6 +1,7 @@
 package com.clean_light.server.jwt.service;
 
 import com.clean_light.server.jwt.dto.UserTokenInfo;
+import com.clean_light.server.jwt.repository.TokenRepository;
 import com.clean_light.server.user.dto.UserAuthToken;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +10,6 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -18,6 +18,8 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.clean_light.server.jwt.domain.TokenType.*;
+
 @Service
 @RequiredArgsConstructor
 @PropertySource("classpath:jwt.properties")
@@ -25,8 +27,8 @@ public class JwtService {
     public static final Duration ACCESS_EXPIRATION_TIME = Duration.ofMinutes(30);
     public static final Duration REFRESH_EXPIRATION_TIME = Duration.ofHours(6);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final StringRedisTemplate jwtRedisTemplate;
-    private final StringRedisTemplate blackListRedisTemplate;
+    private final TokenRepository redisRepository;
+    private final TokenRepository blackListRedisRepository;
 
     @Value("${secret_key}")
     private String SECRET_KEY;
@@ -49,7 +51,7 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateRefreshToken() throws JsonProcessingException {
+    public String generateRefreshToken() {
         SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
         return Jwts.builder()
@@ -87,40 +89,38 @@ public class JwtService {
     public UserAuthToken refresh(String accessToken, String refreshToken) throws JsonProcessingException {
         UserTokenInfo userTokenInfo = decodeToken(accessToken);
         String loginId = userTokenInfo.getLoginId();
-        String storedRefreshToken = jwtRedisTemplate.opsForValue().get(loginId + "RT");
+        String storedRefreshToken = redisRepository.fetchTokenBy(loginId, REFRESH);
 
         if (storedRefreshToken == null || !Objects.equals(refreshToken, storedRefreshToken)) {
             throw new JwtException("유효하지 않은 토큰입니다.");
         }
 
-        // 블랙리스트 처리
         sendToBlackListIfExist(loginId);
 
         String newAccessToken = generateAccessToken(userTokenInfo);
         String newRefreshToken = generateRefreshToken();
 
-        jwtRedisTemplate.opsForValue().set(loginId + "AT", newAccessToken, ACCESS_EXPIRATION_TIME);
-        jwtRedisTemplate.opsForValue().set(loginId + "RT", newRefreshToken, REFRESH_EXPIRATION_TIME);
+        setToken(loginId, newAccessToken, newRefreshToken);
 
         return UserAuthToken.of(newAccessToken, newRefreshToken);
     }
 
     public void sendToBlackListIfExist(String loginId) {
-        String existedAccessToken = jwtRedisTemplate.opsForValue().get(loginId + "AT");
-        String existedRefreshToken = jwtRedisTemplate.opsForValue().get(loginId + "RT");
+        String existedRefreshToken = redisRepository.fetchTokenBy(loginId, REFRESH);
+        String existedAccessToken = redisRepository.fetchTokenBy(loginId, ACCESS);
 
         if (existedRefreshToken != null) {
             Duration refreshTokenExpiration = calculateTimeUntilExpiration(existedRefreshToken);
 
-            blackListRedisTemplate.opsForValue().set(loginId + "RT", existedRefreshToken, refreshTokenExpiration);
-            jwtRedisTemplate.delete(loginId + "RT");
+            blackListRedisRepository.setToken(loginId, existedRefreshToken, refreshTokenExpiration, REFRESH);
+            redisRepository.deleteToken(loginId, REFRESH);
         }
 
         if (existedAccessToken != null) {
             Duration accessTokenExpiration = calculateTimeUntilExpiration(existedAccessToken);
 
-            blackListRedisTemplate.opsForValue().set(loginId + "AT", existedAccessToken, accessTokenExpiration);
-            jwtRedisTemplate.delete(loginId + "AT");
+            blackListRedisRepository.setToken(loginId, existedAccessToken, accessTokenExpiration, ACCESS);
+            redisRepository.deleteToken(loginId, ACCESS);
         }
     }
 
@@ -138,7 +138,7 @@ public class JwtService {
     }
 
     public void setToken(String key, String accessToken, String refreshToken) {
-        jwtRedisTemplate.opsForValue().set(key + "AT", accessToken, ACCESS_EXPIRATION_TIME);
-        jwtRedisTemplate.opsForValue().set(key + "RT", refreshToken, REFRESH_EXPIRATION_TIME);
+        redisRepository.setToken(key, accessToken, ACCESS_EXPIRATION_TIME, ACCESS);
+        redisRepository.setToken(key, refreshToken, REFRESH_EXPIRATION_TIME, REFRESH);
     }
 }
