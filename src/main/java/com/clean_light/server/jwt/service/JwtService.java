@@ -2,18 +2,13 @@ package com.clean_light.server.jwt.service;
 
 import com.clean_light.server.jwt.dto.UserTokenInfo;
 import com.clean_light.server.user.dto.UserAuthToken;
-import com.clean_light.server.user.error.UserAuthError;
-import com.clean_light.server.user.error.UserAuthException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +23,7 @@ import java.util.Objects;
 @PropertySource("classpath:jwt.properties")
 public class JwtService {
     public static final Duration ACCESS_EXPIRATION_TIME = Duration.ofMinutes(30);
-    public static final Duration REFRESH_EXPIRATION_TIME = Duration.ofHours(1);
+    public static final Duration REFRESH_EXPIRATION_TIME = Duration.ofHours(6);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final StringRedisTemplate jwtRedisTemplate;
     private final StringRedisTemplate blackListRedisTemplate;
@@ -91,43 +86,45 @@ public class JwtService {
 
     public UserAuthToken refresh(String accessToken, String refreshToken) throws JsonProcessingException {
         UserTokenInfo userTokenInfo = decodeToken(accessToken);
-
-        Long userId = userTokenInfo.getId();
-        String storedRefreshToken = jwtRedisTemplate.opsForValue().get(userId.toString());
+        String loginId = userTokenInfo.getLoginId();
+        String storedRefreshToken = jwtRedisTemplate.opsForValue().get(loginId + "RT");
 
         if (storedRefreshToken == null || !Objects.equals(refreshToken, storedRefreshToken)) {
             throw new JwtException("유효하지 않은 토큰입니다.");
         }
 
+        // 블랙리스트 처리
+        sendToBlackListIfExist(loginId);
+
         String newAccessToken = generateAccessToken(userTokenInfo);
         String newRefreshToken = generateRefreshToken();
 
-        jwtRedisTemplate.opsForValue().set(userId.toString(), newRefreshToken, REFRESH_EXPIRATION_TIME);
-
-        // accessToken 블랙리스트 추가
+        jwtRedisTemplate.opsForValue().set(loginId + "AT", newAccessToken, ACCESS_EXPIRATION_TIME);
+        jwtRedisTemplate.opsForValue().set(loginId + "RT", newRefreshToken, REFRESH_EXPIRATION_TIME);
 
         return UserAuthToken.of(newAccessToken, newRefreshToken);
     }
 
-    public void setBlackListIfExist(String loginId) throws JsonProcessingException {
-        String existedRefreshToken = jwtRedisTemplate.opsForValue().get(loginId);
+    public void sendToBlackListIfExist(String loginId) {
         String existedAccessToken = jwtRedisTemplate.opsForValue().get(loginId + "AT");
+        String existedRefreshToken = jwtRedisTemplate.opsForValue().get(loginId + "RT");
 
         if (existedRefreshToken != null) {
-            Duration refreshTokenExpiration = getExpirationFrom(existedRefreshToken);
+            Duration refreshTokenExpiration = calculateTimeUntilExpiration(existedRefreshToken);
 
             blackListRedisTemplate.opsForValue().set(loginId + "RT", existedRefreshToken, refreshTokenExpiration);
+            jwtRedisTemplate.delete(loginId + "RT");
         }
 
         if (existedAccessToken != null) {
-            Duration accessTokenExpiration = getExpirationFrom(existedAccessToken);
+            Duration accessTokenExpiration = calculateTimeUntilExpiration(existedAccessToken);
 
             blackListRedisTemplate.opsForValue().set(loginId + "AT", existedAccessToken, accessTokenExpiration);
+            jwtRedisTemplate.delete(loginId + "AT");
         }
-
     }
 
-    private Duration getExpirationFrom(String token) {
+    private Duration calculateTimeUntilExpiration(String token) {
         SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
         Claims payload = Jwts.parser()
                 .verifyWith(secretKey)
@@ -135,6 +132,13 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
 
-        return payload.getExpiration();
+        long difference = payload.getExpiration().getTime() - new Date().getTime();
+
+        return Duration.ofMillis(difference);
+    }
+
+    public void setToken(String key, String accessToken, String refreshToken) {
+        jwtRedisTemplate.opsForValue().set(key + "AT", accessToken, ACCESS_EXPIRATION_TIME);
+        jwtRedisTemplate.opsForValue().set(key + "RT", refreshToken, REFRESH_EXPIRATION_TIME);
     }
 }
