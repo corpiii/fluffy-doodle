@@ -30,8 +30,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        CustomRequestWrapper customRequestWrapper = new CustomRequestWrapper(request);
-
         // accessToken 검증
         if (bearerAccessToken != null) {
             if (!bearerAccessToken.startsWith("Bearer ")) {
@@ -49,8 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "사용할 수 없는 토큰입니다.");
                     return;
                 }
-
-                customRequestWrapper.addHeader("Authorization", accessToken);
             } catch (Exception e) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
                 return;
@@ -73,13 +69,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "사용할 수 없는 토큰입니다.");
                     return;
                 }
-
-                customRequestWrapper.addHeader("Refresh-Token", refreshToken);
             } catch (Exception e) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
             }
         }
 
-        filterChain.doFilter(customRequestWrapper, response);
+        filterChain.doFilter(request, response);
     }
 }

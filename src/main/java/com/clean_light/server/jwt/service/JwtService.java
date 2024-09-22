@@ -1,16 +1,22 @@
 package com.clean_light.server.jwt.service;
 
+import com.clean_light.server.jwt.domain.TokenType;
 import com.clean_light.server.jwt.dto.UserTokenInfo;
 import com.clean_light.server.jwt.repository.TokenRepository;
 import com.clean_light.server.user.dto.UserAuthToken;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -105,6 +111,7 @@ public class JwtService {
         return UserAuthToken.of(newAccessToken, newRefreshToken);
     }
 
+    @Transactional
     public void sendToBlackListIfExist(String loginId) {
         String existedRefreshToken = redisRepository.fetchTokenBy(loginId, REFRESH);
         String existedAccessToken = redisRepository.fetchTokenBy(loginId, ACCESS);
