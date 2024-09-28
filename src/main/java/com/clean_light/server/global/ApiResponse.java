@@ -1,9 +1,9 @@
 package com.clean_light.server.global;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class ApiResponse<T> {
     private boolean success;
