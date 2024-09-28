@@ -31,7 +31,7 @@ public class BlackListRedisRepository implements TokenRepository {
     public void setToken(String key, String token, Duration duration, TokenType type) {
         String suffix = generateSuffix(type);
 
-        blackListRedisTemplate.opsForValue().set(key + suffix, token, duration);
+        blackListRedisTemplate.opsForValue().set(token, key + suffix, duration);
     }
 
     @Override
