@@ -1,6 +1,5 @@
 package com.clean_light.server.jwt.service;
 
-import com.clean_light.server.jwt.domain.TokenType;
 import com.clean_light.server.jwt.dto.UserTokenInfo;
 import com.clean_light.server.jwt.repository.TokenRepository;
 import com.clean_light.server.user.dto.UserAuthToken;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;

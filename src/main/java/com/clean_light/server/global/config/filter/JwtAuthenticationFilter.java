@@ -1,6 +1,5 @@
 package com.clean_light.server.global.config.filter;
 
-import com.clean_light.server.global.config.filter.utils.CustomRequestWrapper;
 import com.clean_light.server.jwt.domain.TokenType;
 import com.clean_light.server.jwt.dto.UserTokenInfo;
 import com.clean_light.server.jwt.repository.BlackListRedisRepository;
