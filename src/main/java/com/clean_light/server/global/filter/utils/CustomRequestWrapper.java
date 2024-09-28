@@ -1,4 +1,4 @@
-package com.clean_light.server.global.config.filter.utils;
+package com.clean_light.server.global.filter.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;

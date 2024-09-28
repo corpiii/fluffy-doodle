@@ -1,4 +1,4 @@
-package com.clean_light.server.global.config.filter;
+package com.clean_light.server.global.filter;
 
 import com.clean_light.server.jwt.domain.TokenType;
 import com.clean_light.server.jwt.dto.UserTokenInfo;

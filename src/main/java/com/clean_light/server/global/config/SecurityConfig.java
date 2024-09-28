@@ -1,6 +1,6 @@
 package com.clean_light.server.global.config;
 
-import com.clean_light.server.global.config.filter.JwtAuthenticationFilter;
+import com.clean_light.server.global.filter.JwtAuthenticationFilter;
 import com.clean_light.server.jwt.repository.BlackListRedisRepository;
 import com.clean_light.server.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
