@@ -7,7 +7,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
-
 import static com.clean_light.server.jwt.domain.TokenType.*;
 
 @Repository

@@ -1,7 +1,9 @@
 package com.clean_light.server.jwt.dto;
 
 import com.clean_light.server.user.domain.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor

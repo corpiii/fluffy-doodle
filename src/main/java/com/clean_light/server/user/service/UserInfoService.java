@@ -4,8 +4,6 @@ import com.clean_light.server.user.error.UserAuthError;
 import com.clean_light.server.user.error.UserAuthException;
 import com.clean_light.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
