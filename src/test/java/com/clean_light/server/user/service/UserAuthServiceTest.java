@@ -1,9 +1,8 @@
 package com.clean_light.server.user.service;
 
 import com.clean_light.server.jwt.domain.TokenType;
+import com.clean_light.server.jwt.repository.BlackListTokenRepository;
 import com.clean_light.server.jwt.repository.TokenRepository;
-import com.clean_light.server.mock.MockBlackListRedisRepository;
-import com.clean_light.server.mock.MockRedisRepository;
 import com.clean_light.server.user.domain.User;
 import com.clean_light.server.user.dto.UserAuthToken;
 import com.clean_light.server.user.repository.UserRepository;
@@ -15,8 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -26,7 +23,7 @@ class UserAuthServiceTest {
     @Autowired UserRepository userRepository;
     @Autowired PasswordEncoder passwordEncoder;
     @Autowired TokenRepository redisRepository;
-    @Autowired TokenRepository blackListRedisRepository;
+    @Autowired BlackListTokenRepository blackListRedisRepository;
 
     @Test
     @DisplayName("유저 생성 성공 테스트(값의 검증은 컨트롤러에서 시도)")
@@ -122,10 +119,7 @@ class UserAuthServiceTest {
         assertNull(originAccessToken);
         assertNull(originRefreshToken);
 
-        String blackListAccessToken = blackListRedisRepository.fetchTokenBy(loginId, TokenType.ACCESS);
-        String blackListRefreshToken = blackListRedisRepository.fetchTokenBy(loginId, TokenType.REFRESH);
-
-        assertEquals(blackListAccessToken, accessToken);
-        assertEquals(blackListRefreshToken, refreshToken);
+        assertTrue(blackListRedisRepository.isBlackList(accessToken));
+        assertTrue(blackListRedisRepository.isBlackList(refreshToken));
     }
 }
