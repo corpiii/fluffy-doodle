@@ -2,6 +2,7 @@ package com.clean_light.server.global.config;
 
 import com.clean_light.server.global.filter.JwtAuthenticationFilter;
 import com.clean_light.server.jwt.repository.BlackListRedisRepository;
+import com.clean_light.server.jwt.repository.BlackListTokenRepository;
 import com.clean_light.server.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtService jwtService;
-    private final BlackListRedisRepository blackListRedisRepository;
+    private final BlackListTokenRepository blackListRedisRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {

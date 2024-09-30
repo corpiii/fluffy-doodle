@@ -1,8 +1,7 @@
 package com.clean_light.server.global.filter;
 
-import com.clean_light.server.jwt.domain.TokenType;
 import com.clean_light.server.jwt.dto.UserTokenInfo;
-import com.clean_light.server.jwt.repository.BlackListRedisRepository;
+import com.clean_light.server.jwt.repository.BlackListTokenRepository;
 import com.clean_light.server.jwt.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,7 +16,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final BlackListRedisRepository blackListRedisRepository;
+    private final BlackListTokenRepository blackListRedisRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -38,14 +37,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 String accessToken = bearerAccessToken.substring(7);
-                UserTokenInfo userTokenInfo = jwtService.decodeToken(accessToken);
+                boolean isBlackList = blackListRedisRepository.isBlackList(accessToken);
 
-                String blackListAccessToken = blackListRedisRepository.fetchTokenBy(userTokenInfo.getLoginId(), TokenType.ACCESS);
-
-                if (Objects.equals(blackListAccessToken, accessToken)) {
+                if (isBlackList) {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "사용할 수 없는 토큰입니다.");
                     return;
                 }
+
+                jwtService.decodeToken(accessToken);
             } catch (Exception e) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
                 return;
@@ -61,13 +60,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 String refreshToken = bearerAccessToken.substring(7);
-                UserTokenInfo userTokenInfo = jwtService.decodeToken(refreshToken);
-                String blackListToken = blackListRedisRepository.fetchTokenBy(userTokenInfo.getLoginId(), TokenType.ACCESS);
+                boolean isBlackList = blackListRedisRepository.isBlackList(refreshToken);
 
-                if (Objects.equals(blackListToken, refreshToken)) {
+                if (isBlackList) {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "사용할 수 없는 토큰입니다.");
                     return;
                 }
+
+                jwtService.decodeToken(refreshToken);
             } catch (Exception e) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
             }
