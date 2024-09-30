@@ -1,6 +1,7 @@
 package com.clean_light.server.jwt.service;
 
 import com.clean_light.server.jwt.dto.UserTokenInfo;
+import com.clean_light.server.jwt.repository.BlackListTokenRepository;
 import com.clean_light.server.jwt.repository.TokenRepository;
 import com.clean_light.server.user.dto.UserAuthToken;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,7 +33,7 @@ public class JwtService {
     public static final Duration REFRESH_EXPIRATION_TIME = Duration.ofHours(6);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final TokenRepository redisRepository;
-    private final TokenRepository blackListRedisRepository;
+    private final BlackListTokenRepository blackListRedisRepository;
 
     @Value("${secret_key}")
     private String SECRET_KEY;
@@ -117,14 +118,14 @@ public class JwtService {
         if (existedRefreshToken != null) {
             Duration refreshTokenExpiration = calculateTimeUntilExpiration(existedRefreshToken);
 
-            blackListRedisRepository.setToken(loginId, existedRefreshToken, refreshTokenExpiration, REFRESH);
+            blackListRedisRepository.setToken(existedRefreshToken, "blackList", refreshTokenExpiration);
             redisRepository.deleteToken(loginId, REFRESH);
         }
 
         if (existedAccessToken != null) {
             Duration accessTokenExpiration = calculateTimeUntilExpiration(existedAccessToken);
 
-            blackListRedisRepository.setToken(loginId, existedAccessToken, accessTokenExpiration, ACCESS);
+            blackListRedisRepository.setToken(existedAccessToken, "blackList", accessTokenExpiration);
             redisRepository.deleteToken(loginId, ACCESS);
         }
     }

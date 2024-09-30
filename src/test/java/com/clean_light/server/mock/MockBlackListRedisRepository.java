@@ -1,7 +1,6 @@
 package com.clean_light.server.mock;
 
-import com.clean_light.server.jwt.domain.TokenType;
-import com.clean_light.server.jwt.repository.TokenRepository;
+import com.clean_light.server.jwt.repository.BlackListTokenRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -11,27 +10,26 @@ import java.util.Map;
 
 @Repository(value = "blackListRedisRepository")
 @Profile("test")
-public class MockBlackListRedisRepository implements TokenRepository {
+public class MockBlackListRedisRepository implements BlackListTokenRepository {
     public Map<String, String> datasource = new HashMap<>();
 
     @Override
-    public String fetchTokenBy(String loginId, TokenType type) {
-        String suffix = type == TokenType.ACCESS ? "AT" : "RT";
-
-        return datasource.get(loginId + suffix);
+    public boolean isBlackList(String token) {
+        return datasource.get(token) != null;
     }
 
     @Override
-    public void setToken(String key, String token, Duration duration, TokenType type) {
-        String suffix = type == TokenType.ACCESS ? "AT" : "RT";
-
-        datasource.put(key + suffix, token);
+    public String fetchBy(String key) {
+        return datasource.get(key);
     }
 
     @Override
-    public void deleteToken(String key, TokenType type) {
-        String suffix = type == TokenType.ACCESS ? "AT" : "RT";
+    public void setToken(String key, String value, Duration duration) {
+        datasource.put(key, value);
+    }
 
-        datasource.remove(key + suffix);
+    @Override
+    public void deleteToken(String key) {
+        datasource.remove(key);
     }
 }

@@ -1,6 +1,5 @@
 package com.clean_light.server.jwt.repository;
 
-import com.clean_light.server.jwt.domain.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -8,36 +7,29 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
 
-import static com.clean_light.server.jwt.domain.TokenType.ACCESS;
-
 @Repository
 @Profile("default")
 @RequiredArgsConstructor
-public class BlackListRedisRepository implements TokenRepository {
+public class BlackListRedisRepository implements BlackListTokenRepository {
     private final StringRedisTemplate blackListRedisTemplate;
 
-    private String generateSuffix(TokenType type) {
-        return type == ACCESS ? "AT" : "RT";
+    @Override
+    public boolean isBlackList(String token) {
+        return Boolean.TRUE.equals(blackListRedisTemplate.hasKey(token));
     }
 
     @Override
-    public String fetchTokenBy(String loginId, TokenType type) {
-        String suffix = generateSuffix(type);
-
-        return blackListRedisTemplate.opsForValue().get(loginId + suffix);
+    public String fetchBy(String key) {
+        return blackListRedisTemplate.opsForValue().get(key);
     }
 
     @Override
-    public void setToken(String key, String token, Duration duration, TokenType type) {
-        String suffix = generateSuffix(type);
-
-        blackListRedisTemplate.opsForValue().set(token, key + suffix, duration);
+    public void setToken(String key, String value, Duration duration) {
+        blackListRedisTemplate.opsForValue().set(key, value, duration);
     }
 
     @Override
-    public void deleteToken(String key, TokenType type) {
-        String suffix = generateSuffix(type);
-
-        blackListRedisTemplate.delete(key + suffix);
+    public void deleteToken(String key) {
+        blackListRedisTemplate.delete(key);
     }
 }
