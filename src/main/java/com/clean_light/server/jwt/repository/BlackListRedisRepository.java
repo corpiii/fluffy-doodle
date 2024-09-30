@@ -1,6 +1,5 @@
 package com.clean_light.server.jwt.repository;
 
-import com.clean_light.server.jwt.domain.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
