@@ -27,23 +27,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // accessToken 검증
-        if (bearerAccessToken != null) {
-            if (!validateToken(bearerAccessToken, response)) {
-                return;
-            }
+        if (bearerAccessToken != null && !isValidToken(bearerAccessToken, response)) {
+            return;
         }
 
         // refreshToken 검증
-        if (bearerRefreshToken != null) {
-            if (!validateToken(bearerRefreshToken, response)) {
-                return;
-            }
+        if (bearerRefreshToken != null && !isValidToken(bearerRefreshToken, response)) {
+            return;
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private boolean validateToken(String bearerToken, HttpServletResponse response) throws IOException {
+    private boolean isValidToken(String bearerToken, HttpServletResponse response) throws IOException {
         if (!bearerToken.startsWith("Bearer ")) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "토큰은 \"Bearer \"로 시작해야합니다");
             return false;
