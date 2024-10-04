@@ -18,7 +18,7 @@ public class RedisConfig {
     @Value("${spring.redis.port}")
     private int port;
 
-    public RedisConnectionFactory createLettuceConnectionFactory(int dbIndex) {
+    private RedisConnectionFactory createLettuceConnectionFactory(int dbIndex) {
         final RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(host);
         redisStandaloneConfiguration.setPort(port);
