@@ -21,9 +21,11 @@ public class JwtController {
     private final UserAuthService userAuthService;
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<Void>> refresh(@RequestHeader("Authorization") String accessToken, @RequestHeader("Refresh-Token") String refreshToken) throws JsonProcessingException {
+    public ResponseEntity<ApiResponse<Void>> refresh(@RequestHeader("Authorization") String accessToken, @RequestHeader("Refresh-Token") String refreshToken) {
         try {
-            UserAuthToken token = jwtService.refresh(accessToken, refreshToken);
+            String trimmedAT = accessToken.substring(7);
+            String trimmedRT = refreshToken.substring(7);
+            UserAuthToken token = jwtService.refresh(trimmedAT, trimmedRT);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getAccessToken())

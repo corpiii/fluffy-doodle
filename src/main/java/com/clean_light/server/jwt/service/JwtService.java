@@ -72,6 +72,29 @@ public class JwtService {
                 .compact();
     }
 
+    public UserTokenInfo decodeTokenIgnoringExpiration(String token) throws JsonProcessingException {
+        try {
+            SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+            Claims payload = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            String json = payload.get("user", String.class);
+
+            return objectMapper.readValue(json, UserTokenInfo.class);
+        } catch (ExpiredJwtException e) {
+            Claims expiredPayload = e.getClaims();
+            String json = expiredPayload.get("user", String.class);
+
+            return objectMapper.readValue(json, UserTokenInfo.class);
+        } catch (JwtException e) {
+            System.out.println("e.getMessage() = " + e.getMessage());
+            throw new RuntimeException("토큰이 유효하지 않습니다.");
+        }
+    }
+
     public UserTokenInfo decodeToken(String token) throws JsonProcessingException {
         try {
             SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
@@ -92,7 +115,7 @@ public class JwtService {
     }
 
     public UserAuthToken refresh(String accessToken, String refreshToken) throws JsonProcessingException {
-        UserTokenInfo userTokenInfo = decodeToken(accessToken);
+        UserTokenInfo userTokenInfo = decodeTokenIgnoringExpiration(accessToken);
         String loginId = userTokenInfo.getLoginId();
         String storedRefreshToken = redisRepository.fetchTokenBy(loginId, REFRESH);
 
