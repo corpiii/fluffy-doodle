@@ -4,7 +4,6 @@ import com.clean_light.server.global.ApiResponse;
 import com.clean_light.server.jwt.service.JwtService;
 import com.clean_light.server.user.dto.UserAuthToken;
 import com.clean_light.server.user.service.UserAuthService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/jwt")
+@RequestMapping("/api/jwt")
 public class JwtController {
     private final JwtService jwtService;
     private final UserAuthService userAuthService;
