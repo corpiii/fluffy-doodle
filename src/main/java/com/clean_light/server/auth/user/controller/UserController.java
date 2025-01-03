@@ -1,11 +1,11 @@
-package com.clean_light.server.user.controller;
+package com.clean_light.server.auth.user.controller;
 
+import com.clean_light.server.auth.user.dto.UserJoinRequest;
+import com.clean_light.server.auth.user.dto.UserLoginRequest;
+import com.clean_light.server.auth.user.error.UserAuthException;
 import com.clean_light.server.global.ApiResponse;
 import com.clean_light.server.user.domain.User;
 import com.clean_light.server.user.dto.UserAuthToken;
-import com.clean_light.server.user.dto.UserJoinRequest;
-import com.clean_light.server.user.dto.UserLoginRequest;
-import com.clean_light.server.user.error.UserAuthException;
 import com.clean_light.server.user.service.UserAuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;

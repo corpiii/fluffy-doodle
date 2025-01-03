@@ -1,6 +1,6 @@
-package com.clean_light.server.jwt.dto;
+package com.clean_light.server.auth.jwt.dto;
 
-import com.clean_light.server.user.domain.User;
+import com.clean_light.server.auth.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

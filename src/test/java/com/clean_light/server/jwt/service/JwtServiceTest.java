@@ -1,7 +1,8 @@
 package com.clean_light.server.jwt.service;
 
-import com.clean_light.server.jwt.dto.UserTokenInfo;
-import com.clean_light.server.user.domain.User;
+import com.clean_light.server.auth.jwt.dto.UserTokenInfo;
+import com.clean_light.server.auth.jwt.service.JwtService;
+import com.clean_light.server.auth.user.domain.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -14,7 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @Slf4j
 class JwtServiceTest {
-    @Autowired JwtService jwtService;
+    @Autowired
+    JwtService jwtService;
 
     @Test
     @DisplayName("jwt 생성 후 decode 테스트")

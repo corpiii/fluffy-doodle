@@ -1,6 +1,6 @@
 package com.clean_light.server.mock;
 
-import com.clean_light.server.jwt.repository.BlackListTokenRepository;
+import com.clean_light.server.auth.jwt.repository.BlackListTokenRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.clean_light.server.user.dto;
+package com.clean_light.server.auth.user.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

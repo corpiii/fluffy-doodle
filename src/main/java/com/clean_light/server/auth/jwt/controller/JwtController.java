@@ -1,4 +1,4 @@
-package com.clean_light.server.jwt.controller;
+package com.clean_light.server.auth.jwt.controller;
 
 import com.clean_light.server.global.ApiResponse;
 import com.clean_light.server.jwt.service.JwtService;

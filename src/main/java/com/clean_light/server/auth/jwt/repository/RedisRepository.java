@@ -1,13 +1,12 @@
-package com.clean_light.server.jwt.repository;
+package com.clean_light.server.auth.jwt.repository;
 
-import com.clean_light.server.jwt.domain.TokenType;
+import com.clean_light.server.auth.jwt.domain.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
-import static com.clean_light.server.jwt.domain.TokenType.*;
 
 @Repository
 @Profile("default")
@@ -16,7 +15,7 @@ public class RedisRepository implements TokenRepository {
     private final StringRedisTemplate jwtRedisTemplate;
 
     private String generateSuffix(TokenType type) {
-        return type == ACCESS ? "AT" : "RT";
+        return type == TokenType.ACCESS ? "AT" : "RT";
     }
 
     @Override

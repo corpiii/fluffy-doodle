@@ -1,11 +1,12 @@
 package com.clean_light.server.user.service;
 
-import com.clean_light.server.jwt.domain.TokenType;
-import com.clean_light.server.jwt.repository.BlackListTokenRepository;
-import com.clean_light.server.jwt.repository.TokenRepository;
-import com.clean_light.server.user.domain.User;
-import com.clean_light.server.user.dto.UserAuthToken;
-import com.clean_light.server.user.repository.UserRepository;
+import com.clean_light.server.auth.jwt.domain.TokenType;
+import com.clean_light.server.auth.jwt.repository.BlackListTokenRepository;
+import com.clean_light.server.auth.jwt.repository.TokenRepository;
+import com.clean_light.server.auth.user.domain.User;
+import com.clean_light.server.auth.user.dto.UserAuthToken;
+import com.clean_light.server.auth.user.repository.UserRepository;
+import com.clean_light.server.auth.user.service.UserAuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 class UserAuthServiceTest {
-    @Autowired UserAuthService userAuthService;
+    @Autowired
+    UserAuthService userAuthService;
     @Autowired UserRepository userRepository;
     @Autowired PasswordEncoder passwordEncoder;
     @Autowired TokenRepository redisRepository;

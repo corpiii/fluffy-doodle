@@ -1,4 +1,4 @@
-package com.clean_light.server.user.error;
+package com.clean_light.server.auth.user.error;
 
 public class UserAuthException extends RuntimeException {
     private final UserAuthError errorCode;

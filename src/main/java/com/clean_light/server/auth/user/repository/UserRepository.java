@@ -1,6 +1,6 @@
-package com.clean_light.server.user.repository;
+package com.clean_light.server.auth.user.repository;
 
-import com.clean_light.server.user.domain.User;
+import com.clean_light.server.auth.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;

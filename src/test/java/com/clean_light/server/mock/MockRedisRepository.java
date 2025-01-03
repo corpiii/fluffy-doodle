@@ -1,7 +1,7 @@
 package com.clean_light.server.mock;
 
-import com.clean_light.server.jwt.domain.TokenType;
-import com.clean_light.server.jwt.repository.TokenRepository;
+import com.clean_light.server.auth.jwt.domain.TokenType;
+import com.clean_light.server.auth.jwt.repository.TokenRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
