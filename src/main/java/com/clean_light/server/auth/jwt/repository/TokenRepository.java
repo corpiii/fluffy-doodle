@@ -1,6 +1,6 @@
-package com.clean_light.server.jwt.repository;
+package com.clean_light.server.auth.jwt.repository;
 
-import com.clean_light.server.jwt.domain.TokenType;
+import com.clean_light.server.auth.jwt.domain.TokenType;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 

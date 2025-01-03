@@ -1,9 +1,8 @@
 package com.clean_light.server.global.config;
 
 import com.clean_light.server.global.filter.JwtAuthenticationFilter;
-import com.clean_light.server.jwt.repository.BlackListRedisRepository;
-import com.clean_light.server.jwt.repository.BlackListTokenRepository;
-import com.clean_light.server.jwt.service.JwtService;
+import com.clean_light.server.auth.jwt.repository.BlackListTokenRepository;
+import com.clean_light.server.auth.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.clean_light.server.user.dto;
+package com.clean_light.server.auth.user.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.clean_light.server.jwt.repository;
+package com.clean_light.server.auth.jwt.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;

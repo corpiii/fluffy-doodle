@@ -1,9 +1,9 @@
 package com.clean_light.server.auth.jwt.controller;
 
 import com.clean_light.server.global.ApiResponse;
-import com.clean_light.server.jwt.service.JwtService;
-import com.clean_light.server.user.dto.UserAuthToken;
-import com.clean_light.server.user.service.UserAuthService;
+import com.clean_light.server.auth.jwt.service.JwtService;
+import com.clean_light.server.auth.user.dto.UserAuthToken;
+import com.clean_light.server.auth.user.service.UserAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

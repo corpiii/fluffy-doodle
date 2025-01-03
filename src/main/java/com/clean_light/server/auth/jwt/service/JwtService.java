@@ -1,9 +1,9 @@
-package com.clean_light.server.jwt.service;
+package com.clean_light.server.auth.jwt.service;
 
-import com.clean_light.server.jwt.dto.UserTokenInfo;
-import com.clean_light.server.jwt.repository.BlackListTokenRepository;
-import com.clean_light.server.jwt.repository.TokenRepository;
-import com.clean_light.server.user.dto.UserAuthToken;
+import com.clean_light.server.auth.jwt.dto.UserTokenInfo;
+import com.clean_light.server.auth.jwt.repository.BlackListTokenRepository;
+import com.clean_light.server.auth.jwt.repository.TokenRepository;
+import com.clean_light.server.auth.user.dto.UserAuthToken;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -23,7 +23,7 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.Objects;
 
-import static com.clean_light.server.jwt.domain.TokenType.*;
+import static com.clean_light.server.auth.jwt.domain.TokenType.*;
 
 @Service
 @RequiredArgsConstructor

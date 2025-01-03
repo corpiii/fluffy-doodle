@@ -1,12 +1,13 @@
-package com.clean_light.server.user.service;
+package com.clean_light.server.auth.user.service;
 
-import com.clean_light.server.jwt.dto.UserTokenInfo;
-import com.clean_light.server.jwt.service.JwtService;
-import com.clean_light.server.user.domain.User;
-import com.clean_light.server.user.dto.UserAuthToken;
-import com.clean_light.server.user.error.UserAuthError;
-import com.clean_light.server.user.error.UserAuthException;
-import com.clean_light.server.user.repository.UserRepository;
+import com.clean_light.server.auth.jwt.dto.UserTokenInfo;
+import com.clean_light.server.auth.jwt.service.JwtService;
+import com.clean_light.server.auth.user.domain.User;
+import com.clean_light.server.auth.user.dto.UserAuthToken;
+import com.clean_light.server.auth.user.error.UserAuthError;
+import com.clean_light.server.auth.user.error.UserAuthException;
+import com.clean_light.server.auth.user.repository.UserRepository;
+import com.clean_light.server.auth.user.service.UserInfoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

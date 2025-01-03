@@ -1,7 +1,7 @@
 package com.clean_light.server.global.filter;
 
-import com.clean_light.server.jwt.repository.BlackListTokenRepository;
-import com.clean_light.server.jwt.service.JwtService;
+import com.clean_light.server.auth.jwt.repository.BlackListTokenRepository;
+import com.clean_light.server.auth.jwt.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +11,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

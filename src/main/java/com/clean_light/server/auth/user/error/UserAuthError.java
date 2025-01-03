@@ -1,4 +1,4 @@
-package com.clean_light.server.user.error;
+package com.clean_light.server.auth.user.error;
 
 public enum UserAuthError {
     DUPLICATED_LOGIN_ID("아이디가 중복되었습니다."),

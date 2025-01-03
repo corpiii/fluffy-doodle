@@ -1,8 +1,8 @@
-package com.clean_light.server.user.service;
+package com.clean_light.server.auth.user.service;
 
-import com.clean_light.server.user.error.UserAuthError;
-import com.clean_light.server.user.error.UserAuthException;
-import com.clean_light.server.user.repository.UserRepository;
+import com.clean_light.server.auth.user.error.UserAuthError;
+import com.clean_light.server.auth.user.error.UserAuthException;
+import com.clean_light.server.auth.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
