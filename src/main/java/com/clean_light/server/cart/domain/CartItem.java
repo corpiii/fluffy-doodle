@@ -1,5 +1,6 @@
-package com.clean_light.server.auth.user.domain;
+package com.clean_light.server.cart.domain;
 
+import com.clean_light.server.auth.user.domain.User;
 import com.clean_light.server.product.domain.Product;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

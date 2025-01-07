@@ -1,9 +1,13 @@
 package com.clean_light.server.auth.user.domain;
 
+import com.clean_light.server.cart.domain.CartItem;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,4 +35,7 @@ public class User implements Serializable {
     private String email;
 
     private String nickName;
+
+    @OneToMany(mappedBy = "oner", cascade = CascadeType.ALL)
+    private List<CartItem> cartItemList;
 }
