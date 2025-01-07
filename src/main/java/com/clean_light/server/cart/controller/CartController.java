@@ -8,6 +8,7 @@ import com.clean_light.server.auth.user.error.UserAuthException;
 import com.clean_light.server.cart.domain.CartItem;
 import com.clean_light.server.auth.user.domain.User;
 import com.clean_light.server.auth.user.service.UserAuthService;
+import com.clean_light.server.cart.dto.CartItemResponse;
 import com.clean_light.server.global.ApiResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +27,7 @@ public class CartController {
     private final JwtService jwtService;
 
     @RequestMapping(value = "/api/user/cart", method = RequestMethod.HEAD)
-    public ResponseEntity<ApiResponse<List<CartItem>>> fetchCartItemList(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<List<CartItemResponse>>> fetchCartItemList(HttpServletRequest request) {
         try {
             String accessToken = request.getParameter(HttpHeaders.AUTHORIZATION).substring(7);
             UserTokenInfo userTokenInfo = jwtService.decodeToken(accessToken);
@@ -37,8 +38,10 @@ public class CartController {
             }
 
             User user = userAuthService.findByLoginId(loginId);
+            List<CartItem> cartItemList = user.getCartItemList();
+            List<CartItemResponse> responseList = cartItemList.stream().map(CartItemResponse::new).toList();
 
-            return ResponseEntity.ok(new ApiResponse<>(true, user.getCartItemList(), ""));
+            return ResponseEntity.ok(new ApiResponse<>(true, responseList, ""));
         } catch (Exception exception) {
             return ResponseEntity.badRequest()
                     .body(new ApiResponse<>(false, null, exception.getMessage()));
