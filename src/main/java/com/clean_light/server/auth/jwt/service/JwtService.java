@@ -1,5 +1,6 @@
 package com.clean_light.server.auth.jwt.service;
 
+import com.clean_light.server.auth.jwt.domain.TokenType;
 import com.clean_light.server.auth.jwt.dto.UserTokenInfo;
 import com.clean_light.server.auth.jwt.repository.BlackListTokenRepository;
 import com.clean_light.server.auth.jwt.repository.TokenRepository;
@@ -169,5 +170,11 @@ public class JwtService {
     public void setToken(String key, String accessToken, String refreshToken) {
         redisRepository.setToken(key, accessToken, ACCESS_EXPIRATION_TIME, ACCESS);
         redisRepository.setToken(key, refreshToken, REFRESH_EXPIRATION_TIME, REFRESH);
+    }
+
+    public boolean isExist(String loginId, TokenType tokenType) {
+        String token = redisRepository.fetchTokenBy(loginId, tokenType);
+
+        return token != null;
     }
 }

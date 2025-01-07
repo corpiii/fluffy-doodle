@@ -1,5 +1,6 @@
 package com.clean_light.server.auth.user.service;
 
+import com.clean_light.server.auth.jwt.domain.TokenType;
 import com.clean_light.server.auth.jwt.dto.UserTokenInfo;
 import com.clean_light.server.auth.jwt.service.JwtService;
 import com.clean_light.server.auth.user.domain.User;
@@ -7,7 +8,6 @@ import com.clean_light.server.auth.user.dto.UserAuthToken;
 import com.clean_light.server.auth.user.error.UserAuthError;
 import com.clean_light.server.auth.user.error.UserAuthException;
 import com.clean_light.server.auth.user.repository.UserRepository;
-import com.clean_light.server.auth.user.service.UserInfoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -62,5 +62,10 @@ public class UserAuthService {
 
         jwtService.sendToBlackListIfExist(loginId);
         userRepository.deleteByLoginId(loginId);
+    }
+
+    public User findByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UserAuthException(UserAuthError.USER_NOT_EXIST));
     }
 }
