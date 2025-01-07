@@ -2,6 +2,7 @@ package com.clean_light.server.product.controller;
 
 import com.clean_light.server.global.ApiResponse;
 import com.clean_light.server.product.domain.Product;
+import com.clean_light.server.product.dto.ProductResponse;
 import com.clean_light.server.product.service.ProductService;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,24 +23,26 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/{id}")
-    public ApiResponse<Product> searchProduct(@PathVariable Long id) {
+    public ApiResponse<ProductResponse> searchProduct(@PathVariable Long id) {
         try {
             Product product = productService.search(id);
+            ProductResponse productResponse = new ProductResponse(product);
 
-            return new ApiResponse<Product>(true, product, "");
+            return new ApiResponse<>(true, productResponse, "");
         } catch (IllegalArgumentException exception) {
-            return new ApiResponse<Product>(false, null, exception.getMessage());
+            return new ApiResponse<>(false, null, exception.getMessage());
         }
     }
 
     @GetMapping("/products/{page}")
-    public ApiResponse<List<Product>> searchProductList(@PathVariable(value = "page") int page) {
+    public ApiResponse<List<ProductResponse>> searchProductList(@PathVariable(value = "page") int page) {
         try {
             List<Product> products = productService.searchPage(page);
+            List<ProductResponse> productResponseList = products.stream().map(ProductResponse::new).toList();
 
-            return new ApiResponse<List<Product>>(true, products, "");
+            return new ApiResponse<>(true, productResponseList, "");
         } catch (IllegalArgumentException exception) {
-            return new ApiResponse<List<Product>>(false, null, exception.getMessage());
+            return new ApiResponse<>(false, null, exception.getMessage());
         }
     }
 }
