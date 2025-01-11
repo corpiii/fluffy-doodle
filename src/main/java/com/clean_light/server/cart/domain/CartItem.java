@@ -36,4 +36,8 @@ public class CartItem {
     private int amount;
 
     private int discount;
+
+    public void addAmount(int amount) {
+        this.amount += amount;
+    }
 }

@@ -32,9 +32,18 @@ public class CartService {
     public void addCartItem(String accessToken, Long productId) throws JsonProcessingException {
         User user = findUserByAccessToken(accessToken);
         Product targetProduct = productService.search(productId);
-        CartItem cartItem = new CartItem(null, targetProduct, user, targetProduct.getPrice(), 1, 0);
 
-        user.getCartItemList().add(cartItem);
+        Optional<CartItem> targetCartItem = user.getCartItemList().stream()
+                .filter(cartItem -> cartItem.getProduct().getId().equals(targetProduct.getId())).findFirst();
+
+        if (targetCartItem.isEmpty()) {
+            CartItem cartItem = new CartItem(null, targetProduct, user, targetProduct.getPrice(), 1, 0);
+            user.getCartItemList().add(cartItem);
+            return;
+        }
+
+        targetCartItem.get().addAmount(1);
+    }
     }
 
     private User findUserByAccessToken(String accessToken) throws JsonProcessingException {
