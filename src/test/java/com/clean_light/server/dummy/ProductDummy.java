@@ -10,7 +10,11 @@ public class ProductDummy {
     public List<Product> getDummyList() {
         for (int i = 1; i <= 20; i++) {
             String dummyString = "testProduct" + i;
-            Product product = Product.builder().name(dummyString).description(dummyString).build();
+            Product product = Product.builder()
+                    .id(Integer.toUnsignedLong(i))
+                    .name(dummyString)
+                    .description(dummyString)
+                    .build();
             dummyList.add(product);
         }
 

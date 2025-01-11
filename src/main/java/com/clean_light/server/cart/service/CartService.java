@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class CartService {
         return user.getCartItemList();
     }
 
+    @Transactional
     public void addCartItem(String accessToken, Long productId) throws JsonProcessingException {
         User user = findUserByAccessToken(accessToken);
         Product targetProduct = productService.search(productId);

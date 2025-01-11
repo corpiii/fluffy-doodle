@@ -3,16 +3,18 @@ package com.clean_light.server.cart.service;
 import com.clean_light.server.auth.jwt.dto.UserTokenInfo;
 import com.clean_light.server.auth.jwt.service.JwtService;
 import com.clean_light.server.auth.user.domain.User;
-import com.clean_light.server.auth.user.domain.User.UserBuilder;
+import com.clean_light.server.auth.user.dto.UserAuthToken;
 import com.clean_light.server.auth.user.repository.UserRepository;
 import com.clean_light.server.auth.user.service.UserAuthService;
 import com.clean_light.server.cart.domain.CartItem;
 import com.clean_light.server.dummy.ProductDummy;
 import com.clean_light.server.product.domain.Product;
+import com.clean_light.server.product.repository.ProductRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.List;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.DurationAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +30,10 @@ class CartServiceTest {
     @Autowired private UserAuthService userAuthService;
     @Autowired private UserRepository userRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private ProductRepository productRepository;
+
     private final String testLoginId = "loginId";
+    private String accessToken;
 
     @BeforeEach
     void initUser() throws JsonProcessingException {
@@ -47,7 +52,13 @@ class CartServiceTest {
                 .password("password")
                 .build();
 
-        userAuthService.login(willLoginUser);
+        UserAuthToken authToken = userAuthService.login(willLoginUser);
+        accessToken = authToken.getAccessToken();
+    }
+
+    @BeforeEach
+    void initProduct() {
+        new ProductDummy().getDummyList().forEach(product -> productRepository.save(product));
     }
 
     @Test
@@ -69,5 +80,30 @@ class CartServiceTest {
         Assertions.assertThat(cartItemList.size()).isEqualTo(1);
         Assertions.assertThat(actualProduct.getName()).isEqualTo(expectedProduct.getName());
         Assertions.assertThat(actualProduct.getDescription()).isEqualTo(expectedProduct.getDescription());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("장바구니 상품 추가")
+    void addCartItem() throws JsonProcessingException {
+        // given
+        UserTokenInfo userTokenInfo = jwtService.decodeToken(accessToken);
+        User user = userAuthService.findByLoginId(userTokenInfo.getLoginId());
+
+        // when
+        List<Product> expectedProductList = new ProductDummy().getDummyList();
+
+        expectedProductList.forEach(product -> {
+            try {
+                cartService.addCartItem(accessToken, product.getId());
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // then
+        List<Product> actualList = user.getCartItemList().stream().map(CartItem::getProduct).toList();
+
+        Assertions.assertThat(actualList).isEqualTo(expectedProductList);
     }
 }
