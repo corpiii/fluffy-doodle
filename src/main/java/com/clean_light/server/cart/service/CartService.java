@@ -11,6 +11,7 @@ import com.clean_light.server.product.domain.Product;
 import com.clean_light.server.product.service.ProductService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,14 @@ public class CartService {
 
         targetCartItem.get().addAmount(1);
     }
+
+    @Transactional
+    public void deleteCartItem(String accessToken, Long productId) throws JsonProcessingException {
+        User user = findUserByAccessToken(accessToken);
+        Product targetProduct = productService.search(productId);
+        CartItem targetCartItem = findCartItem(user, targetProduct);
+
+        user.getCartItemList().remove(targetCartItem);
     }
 
     private User findUserByAccessToken(String accessToken) throws JsonProcessingException {
@@ -56,5 +65,12 @@ public class CartService {
 
         return userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다. 다시 로그인 해주세요."));
+    }
+
+    private CartItem findCartItem(User user, Product targetProduct) {
+        return user.getCartItemList().stream()
+                .filter(cartItem -> cartItem.getProduct().getId().equals(targetProduct.getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품은 장바구니에 없습니다: " + targetProduct.getId()));
     }
 }
