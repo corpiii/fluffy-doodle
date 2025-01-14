@@ -5,7 +5,6 @@ import com.clean_light.server.auth.jwt.dto.UserTokenInfo;
 import com.clean_light.server.auth.jwt.service.JwtService;
 import com.clean_light.server.auth.user.domain.User;
 import com.clean_light.server.auth.user.repository.UserRepository;
-import com.clean_light.server.auth.user.service.UserAuthService;
 import com.clean_light.server.cart.domain.CartItem;
 import com.clean_light.server.product.domain.Product;
 import com.clean_light.server.product.service.ProductService;

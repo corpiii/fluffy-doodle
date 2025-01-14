@@ -4,7 +4,6 @@ import com.clean_light.server.global.ApiResponse;
 import com.clean_light.server.product.domain.Product;
 import com.clean_light.server.product.dto.ProductResponse;
 import com.clean_light.server.product.service.ProductService;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

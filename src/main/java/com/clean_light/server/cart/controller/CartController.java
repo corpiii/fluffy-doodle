@@ -1,17 +1,9 @@
 package com.clean_light.server.cart.controller;
 
-import com.clean_light.server.auth.jwt.domain.TokenType;
-import com.clean_light.server.auth.jwt.dto.UserTokenInfo;
-import com.clean_light.server.auth.jwt.service.JwtService;
-import com.clean_light.server.auth.user.error.UserAuthError;
-import com.clean_light.server.auth.user.error.UserAuthException;
 import com.clean_light.server.cart.domain.CartItem;
-import com.clean_light.server.auth.user.domain.User;
-import com.clean_light.server.auth.user.service.UserAuthService;
 import com.clean_light.server.cart.dto.CartItemResponse;
 import com.clean_light.server.cart.service.CartService;
 import com.clean_light.server.global.ApiResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
