@@ -24,7 +24,7 @@ public class CartItem {
     @Column(name = "cart-item_id")
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     private Product product;
 
     @ManyToOne
