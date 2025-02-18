@@ -18,7 +18,7 @@ public class ProductService {
     }
 
     public List<Product> searchPage(int page) {
-        int productUnit = 20;
+        int productUnit = 12;
         PageRequest pageRequest = PageRequest.of(page, productUnit);
 
         return productRepository.findAll(pageRequest).getContent();

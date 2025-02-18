@@ -23,7 +23,7 @@ class ProductServiceTest {
     void searchProductTest() {
         /* given */
         Product testProduct = productDummy.getDummyList().get(0);
-        Long productId = 1L;
+        Long productId = 13L;
         String productName = testProduct.getName();
         String productDescription = testProduct.getDescription();
 

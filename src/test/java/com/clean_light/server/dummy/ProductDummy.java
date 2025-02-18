@@ -8,7 +8,7 @@ public class ProductDummy {
     private final List<Product> dummyList = new ArrayList<>();
 
     public List<Product> getDummyList() {
-        for (int i = 1; i <= 20; i++) {
+        for (int i = 1; i <= 12; i++) {
             String dummyString = "testProduct" + i;
             Product product = Product.builder()
                     .id(Integer.toUnsignedLong(i))
