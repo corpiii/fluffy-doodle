@@ -68,4 +68,23 @@ public class UserAuthService {
         return userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new UserAuthException(UserAuthError.USER_NOT_EXIST));
     }
+
+    public UserAuthToken adminLogin(User user) throws UserAuthException, JsonProcessingException {
+        User foundedUser = userRepository.findByLoginId(user.getLoginId())
+                .orElseThrow(() -> new UserAuthException(UserAuthError.INVALID_LOGIN_ID));
+
+        if (!user.getPassword().equals(foundedUser.getPassword())) {
+            throw new UserAuthException(UserAuthError.INVALID_PASSWORD);
+        }
+
+        UserTokenInfo userTokenInfo = UserTokenInfo.from(foundedUser);
+        String accessToken = jwtService.generateAccessToken(userTokenInfo);
+        String refreshToken = jwtService.generateRefreshToken();
+        String loginId = userTokenInfo.getLoginId();
+
+        jwtService.sendToBlackListIfExist(loginId);
+        jwtService.setToken(loginId, accessToken, refreshToken);
+
+        return UserAuthToken.of(accessToken, refreshToken);
+    }
 }

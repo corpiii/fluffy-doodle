@@ -48,6 +48,28 @@ public class UserController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @PostMapping("/admin-login")
+    public ResponseEntity<ApiResponse<Void>> adminLogin(@RequestBody UserLoginRequest userLoginRequest) throws JsonProcessingException {
+        User user = User.builder()
+                .loginId(userLoginRequest.loginId)
+                .password(userLoginRequest.password)
+                .build();
+
+        try {
+            UserAuthToken userAuthToken = userAuthService.adminLogin(user);
+            ApiResponse<Void> apiResponse = new ApiResponse<>(true, null, "로그인 되었습니다.");
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + userAuthToken.getAccessToken())
+                    .header("Refresh-Token", "Bearer " + userAuthToken.getRefreshToken())
+                    .body(apiResponse);
+        } catch (UserAuthException e) {
+            ApiResponse<Void> apiResponse = new ApiResponse<>(false, null, e.getMessage());
+
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Void>> login(@RequestBody UserLoginRequest userLoginRequest) throws JsonProcessingException {
         User user = User.builder()
