@@ -43,8 +43,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://192.168.0.12:5500");
         configuration.addAllowedOrigin("http://localhost:5500");
+        configuration.addAllowedOrigin("http://localhost:3001"); // admin page
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
+        configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("Refresh-Token");
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
