@@ -40,7 +40,6 @@ class CartServiceTest {
                 .loginId(testLoginId)
                 .password(passwordEncoder.encode("password"))
                 .email("email")
-                .cartItemList(new ArrayList<>())
                 .nickName("nickName")
                 .build();
 
@@ -88,10 +87,10 @@ class CartServiceTest {
         // given
         UserTokenInfo userTokenInfo = jwtService.decodeToken(accessToken);
         User user = userAuthService.findByLoginId(userTokenInfo.getLoginId());
+        List<Product> expectedProductList = new ProductDummy().getDummyList();
+        expectedProductList.forEach(product -> productRepository.save(product));
 
         // when
-        List<Product> expectedProductList = new ProductDummy().getDummyList();
-
         expectedProductList.forEach(product -> {
             try {
                 cartService.addCartItem(accessToken, product.getId());

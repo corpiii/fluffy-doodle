@@ -1,6 +1,7 @@
 package com.clean_light.server.user.service;
 
 import com.clean_light.server.auth.jwt.domain.TokenType;
+import com.clean_light.server.auth.jwt.domain.UserType;
 import com.clean_light.server.auth.jwt.repository.BlackListTokenRepository;
 import com.clean_light.server.auth.jwt.repository.TokenRepository;
 import com.clean_light.server.auth.user.domain.User;
@@ -37,6 +38,7 @@ class UserAuthServiceTest {
                 .password("password")
                 .email("email")
                 .nickName("nickName")
+                .userType(UserType.NORMAL)
                 .build();
 
         /* when */
