@@ -1,5 +1,6 @@
 package com.clean_light.server.auth.jwt.dto;
 
+import com.clean_light.server.auth.jwt.domain.UserType;
 import com.clean_light.server.auth.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,8 +13,9 @@ public class UserTokenInfo {
     private Long id;
     private String loginId;
     private String nickName;
+    private UserType userType;
 
     public static UserTokenInfo from(User user) {
-        return new UserTokenInfo(user.getId(), user.getLoginId(), user.getNickName());
+        return new UserTokenInfo(user.getId(), user.getLoginId(), user.getNickName(), user.getUserType());
     }
 }

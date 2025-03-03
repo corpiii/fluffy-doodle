@@ -1,5 +1,6 @@
 package com.clean_light.server.auth.user.controller;
 
+import com.clean_light.server.auth.jwt.domain.UserType;
 import com.clean_light.server.auth.user.dto.UserJoinRequest;
 import com.clean_light.server.auth.user.dto.UserLoginRequest;
 import com.clean_light.server.auth.user.error.UserAuthException;
@@ -33,6 +34,7 @@ public class UserController {
                 .password(encodedPassword)
                 .email(userJoinRequest.getEmail())
                 .nickName(userJoinRequest.getNickName())
+                .userType(UserType.NORMAL)
                 .build();
 
         try {

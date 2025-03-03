@@ -80,10 +80,11 @@ public class UserAuthService {
         UserTokenInfo userTokenInfo = UserTokenInfo.from(foundedUser);
         String accessToken = jwtService.generateAccessToken(userTokenInfo);
         String refreshToken = jwtService.generateRefreshToken();
-        String loginId = userTokenInfo.getLoginId();
+        // 어드민은 토큰을 redis에 관리하지 않음.
+//        String loginId = userTokenInfo.getLoginId();
 
-        jwtService.sendToBlackListIfExist(loginId);
-        jwtService.setToken(loginId, accessToken, refreshToken);
+//        jwtService.sendToBlackListIfExist(loginId);
+//        jwtService.setToken(loginId, accessToken, refreshToken);
 
         return UserAuthToken.of(accessToken, refreshToken);
     }

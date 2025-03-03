@@ -1,9 +1,12 @@
 package com.clean_light.server.auth.user.domain;
 
+import com.clean_light.server.auth.jwt.domain.UserType;
 import com.clean_light.server.cart.domain.CartItem;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -37,6 +40,9 @@ public class User implements Serializable {
 
     private String nickName;
 
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
+
     @OneToMany(mappedBy = "oner", cascade = CascadeType.ALL)
-    private List<CartItem> cartItemList = new ArrayList<>();
+    private final List<CartItem> cartItemList = new ArrayList<>();
 }
